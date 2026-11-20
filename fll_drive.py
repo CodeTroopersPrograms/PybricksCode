@@ -196,12 +196,12 @@ def forward(distance_cm, speed=FWD_MAX_SPEED, deceleration=True, stop=True, time
         # lasa loc pentru corectie altfel o roata da in limita si nu mai corecteaza
         current_speed = min(current_speed, MAX_MOTOR_SPEED - abs(correction)) * direction
 
-        left_motor.run(current_speed + correction)
-        right_motor.run(current_speed - correction)
+        # left_motor.run(current_speed + correction)
+        # right_motor.run(current_speed - correction)
 
-    #robot.use_gyro(False)
-    #robot.straight(current_speed)
-    #robot.use_gyro(True)
+    robot.use_gyro(False)
+    robot.straight(current_speed)
+    robot.use_gyro(True)
         
 
 
