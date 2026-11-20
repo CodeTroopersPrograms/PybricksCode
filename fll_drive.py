@@ -216,12 +216,20 @@ def forward(
             min(current_speed, MAX_MOTOR_SPEED - abs(correction)) * direction
         )
 
-        # left_motor.run(current_speed + correction)
-        # right_motor.run(current_speed - correction)
+        left_motor.run(current_speed + correction)
+        right_motor.run(current_speed - correction)
 
+<<<<<<< HEAD
     robot.use_gyro(False)
     robot.straight(current_speed)
     robot.use_gyro(True)
+=======
+    #robot.use_gyro(False)
+    #robot.straight(current_speed)
+    #robot.use_gyro(True)
+        
+
+>>>>>>> parent of 6e822d6 (More Changes =D)
 
     if stop:
         left_motor.hold()
