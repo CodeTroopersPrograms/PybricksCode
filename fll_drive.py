@@ -1,9 +1,9 @@
-from pybricks.hubs import PrimeHub
-from pybricks.pupdevices import Motor
-from pybricks.parameters import Port, Direction, Stop
-from pybricks.tools import wait, StopWatch
-from pybricks.robotics import DriveBase
 import umath
+from pybricks.hubs import PrimeHub
+from pybricks.parameters import Direction, Port, Stop
+from pybricks.pupdevices import Motor
+from pybricks.robotics import DriveBase
+from pybricks.tools import StopWatch, wait
 
 hub = PrimeHub()
 WHEEL_DIAMETER_MM = 62.0
@@ -48,7 +48,7 @@ target_heading = 0.0
 
 
 def clamp(x, lo, hi):
-    return lo if x < lo else (hi if x > hi else x)
+    return lo if x < lo else (min(x, hi))
 
 
 def sign(x):
@@ -199,23 +199,10 @@ def forward(distance_cm, speed=FWD_MAX_SPEED, deceleration=True, stop=True, time
         left_motor.run(current_speed + correction)
         right_motor.run(current_speed - correction)
 
-<<<<<<< HEAD
-    robot.use_gyro(False)
-    robot.straight(current_speed)
-    robot.use_gyro(True)
-<<<<<<< HEAD
-=======
     #robot.use_gyro(False)
     #robot.straight(current_speed)
     #robot.use_gyro(True)
         
-
->>>>>>> parent of 6e822d6 (More Changes =D)
-=======
-        
-
->>>>>>> parent of 80cfdf8 (Fix formatting and remove unused imports in main.py)
-
     if stop:
         left_motor.hold()
         right_motor.hold()
