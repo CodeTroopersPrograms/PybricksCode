@@ -17,21 +17,21 @@ def main():
             print("blue")
             print(color_sensor.color())
             hub.speaker.beep(frequency=400, duration=500)
-            forward(-55)
-            turn(-47)
-            forward(-20)
-            turn(46)
-            forward(-8)
-            run_attachment(r_arm, 100, 100, wait_done=True)
-            forward(8)
-            run_attachment(r_arm, 100, -90)
+            # forward(-55)
+            # turn(-47)
+            # forward(-20)
+            # turn(46)
+            # forward(-8)
+            # run_attachment(r_arm, 100, 100, wait_done=True)
+            # forward(8)
+            # run_attachment(r_arm, 100, -90)
 
         elif 0 <= hsv.h <= 12 and hsv.s > 50:
             # 0 12
             print("orange")
             hub.speaker.beep(frequency=400, duration=500)
-            turn(90)
-            forward(100)
+            # turn(90)
+            # forward(100)
 
         elif 80 <= hsv.h <= 95 and 50 <= hsv.s <= 70:  # Verde
             # a doua dunga din partea dreapta, sa nu treaca peste
@@ -55,19 +55,19 @@ def main():
             # 2 negru 2
             print("yellow")
             hub.speaker.beep(frequency=400, duration=500)
-            run_attachment(r_arm, 1000, 45, then=Stop.HOLD, wait_done=True)
-            run_attachment(r_arm, 2000, 180, then=Stop.HOLD)
-            forward(10)
-            run_attachment(r_arm, 80, -180, then=Stop.HOLD)
-            forward(-12)
-            run_attachment(r_arm, 1800, 180, then=Stop.HOLD)
+            # run_attachment(r_arm, 1000, 45, then=Stop.HOLD, wait_done=True)
+            # run_attachment(r_arm, 2000, 180, then=Stop.HOLD)
+            # forward(10)
+            # run_attachment(r_arm, 80, -180, then=Stop.HOLD)
+            # forward(-12)
+            # run_attachment(r_arm, 1800, 180, then=Stop.HOLD)
 
         elif 270 <= hsv.h <= 335 and hsv.s >= 40 and hsv.v >= 20:
             print("magenta")
             print(color_sensor.color())
             hub.speaker.beep(frequency=400, duration=500)
-            forward(-51)
-            forward(51)
+            # forward(-51)
+            # forward(51)
 
         elif 0 <= hsv.s <= 25 and hsv.v >= 70:
             print("WHITE")
