@@ -25,13 +25,13 @@ def main():
             forward(-8)
             run_attachment(r_arm,  100, 100, wait_done=True)
             forward(2)
-            run_attachment(r_arm, 115, -60, wait_done=True )
+            run_attachment(r_arm, 115, -60, wait_done=True)
             forward(2)
             run_attachment(r_arm, 100, 10, wait_done=True)
             turn(-62)
             forward(-23)
             turn(113)
-            forward(-10, speed=-50   ) 
+            forward(-10, speed=-50) 
             
 
             
