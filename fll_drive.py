@@ -1,9 +1,9 @@
-from pybricks.hubs import PrimeHub
-from pybricks.pupdevices import Motor
-from pybricks.parameters import Port, Direction, Stop
-from pybricks.tools import wait, StopWatch
-from pybricks.robotics import DriveBase
 import umath
+from pybricks.hubs import PrimeHub
+from pybricks.parameters import Direction, Port, Stop
+from pybricks.pupdevices import Motor
+from pybricks.robotics import DriveBase
+from pybricks.tools import StopWatch, wait
 
 hub = PrimeHub()
 left_motor = Motor(Port.A)
@@ -50,7 +50,7 @@ DEG_PER_CM = 3600.0 / (umath.pi * WHEEL_DIAMETER_MM)  # cate grade face motorul 
 robot = DriveBase(left_motor, right_motor, wheel_diameter=WHEEL_DIAMETER_MM, axle_track=AXLE_TRACK_MM)
 
 def clamp(x, lo, hi):
-    return lo if x < lo else (hi if x > hi else x)
+    return lo if x < lo else (min(x, hi))
 
 
 def sign(x):
