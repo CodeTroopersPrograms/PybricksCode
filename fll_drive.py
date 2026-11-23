@@ -10,7 +10,6 @@ left_motor = Motor(Port.A)
 right_motor = Motor(Port.C, Direction.COUNTERCLOCKWISE)
 
 
-
 # calibrat cu forward(100) = 100 cm
 
 
@@ -173,6 +172,10 @@ def forward(distance_cm, speed=FWD_MAX_SPEED, deceleration=True, stop=True):
         wait=True,
     )
 
+    #robot.use_gyro(False)
+    #robot.straight(current_speed)
+    #robot.use_gyro(True)
+        
     if stop:
         left_motor.hold()
         right_motor.hold()
