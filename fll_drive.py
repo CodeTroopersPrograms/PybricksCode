@@ -1,22 +1,18 @@
-import umath
 from pybricks.hubs import PrimeHub
-from pybricks.parameters import Direction, Port, Stop
 from pybricks.pupdevices import Motor
+from pybricks.parameters import Port, Direction, Stop
+from pybricks.tools import wait, StopWatch
 from pybricks.robotics import DriveBase
-from pybricks.tools import StopWatch, wait
+import umath
 
 hub = PrimeHub()
-WHEEL_DIAMETER_MM = 62.0
-AXLE_TRACK_MM = 96.0
 left_motor = Motor(Port.A)
 right_motor = Motor(Port.C, Direction.COUNTERCLOCKWISE)
 
-robot = DriveBase(
-    left_motor, right_motor, wheel_diameter=WHEEL_DIAMETER_MM, axle_track=AXLE_TRACK_MM
-)
+
 
 # calibrat cu forward(100) = 100 cm
-DEG_PER_CM = 3600.0 / (umath.pi * WHEEL_DIAMETER_MM)  # cate grade face motorul pe 1 cm
+
 
 LOOP_MS = 10
 MAX_MOTOR_SPEED = 900
@@ -28,14 +24,14 @@ TURN_KI = 0.5
 TURN_KD = 0.09
 TURN_MAX_SPEED = 550
 TURN_MIN_SPEED = 40
-TURN_MIN_ZONE = 5.0  # sub 5 grade eroare nu mai fortam viteza minima
-TURN_ACCEL = 2000  # cat de repede creste viteza la pornire
+TURN_MIN_ZONE = 5.0 # sub 5 grade eroare nu mai fortam viteza minima
+TURN_ACCEL = 2000 # cat de repede creste viteza la pornire
 TURN_TOLERANCE = 1.0
-TURN_SETTLED_RATE = 15.0  # sub asta consideram ca nu se mai roteste
+TURN_SETTLED_RATE = 15.0 # sub asta consideram ca nu se mai roteste
 TURN_SETTLE_LOOPS = 3
-TURN_I_ZONE = 8.0  # integrala porneste doar sub 8 grade eroare
+TURN_I_ZONE = 8.0 # integrala porneste doar sub 8 grade eroare
 TURN_I_MAX = 40.0
-TURN_RATE_FILTER = 0.4  # 0..1, mai mic = viteza masurata mai netezita
+TURN_RATE_FILTER = 0.4 # 0..1, mai mic = viteza masurata mai netezita
 
 FWD_KP = 2.0
 FWD_KD = 0.02
@@ -45,12 +41,16 @@ FWD_ACCEL = 1200
 FWD_DECEL = 1000
 FWD_MAX_CORRECTION = 150
 
+WHEEL_DIAMETER_MM = 62.0
+AXLE_TRACK_MM = 96.0
 # unde ar trebui sa se uite robotul nu se reseteaza intre miscari
 target_heading = 0.0
+DEG_PER_CM = 3600.0 / (umath.pi * WHEEL_DIAMETER_MM)  # cate grade face motorul pe 1 cm
 
+robot = DriveBase(left_motor, right_motor, wheel_diameter=WHEEL_DIAMETER_MM, axle_track=AXLE_TRACK_MM)
 
 def clamp(x, lo, hi):
-    return lo if x < lo else (min(x, hi))
+    return lo if x < lo else (hi if x > hi else x)
 
 
 def sign(x):
@@ -93,7 +93,7 @@ def turn_to(heading, max_speed=None, timeout_ms=None):
 
     error = hub.imu.heading() - heading
     if timeout_ms is None:
-        timeout_ms = 1000 + abs(error) * 12  # sa nu ramana blocat daca se agata
+        timeout_ms = 1000 + abs(error) * 12 # sa nu ramana blocat daca se agata
 
     timer = StopWatch()
     loop_timer = StopWatch()
@@ -108,7 +108,7 @@ def turn_to(heading, max_speed=None, timeout_ms=None):
         dt = get_dt(loop_timer)
 
         error = hub.imu.heading() - heading
-        crossed = error * prev_error < 0  # a trecut de tinta in bucla asta
+        crossed = error * prev_error < 0 # a trecut de tinta in bucla asta
         raw_rate = (error - prev_error) / dt
         prev_error = error
 
@@ -134,11 +134,7 @@ def turn_to(heading, max_speed=None, timeout_ms=None):
         cmd = clamp(cmd, -max_speed, max_speed)
 
         # viteza minima doar departe de tinta, aproape PID-ul termina incet
-        if (
-            abs(error) > TURN_MIN_ZONE
-            and sign(cmd) == sign(error)
-            and abs(cmd) < TURN_MIN_SPEED
-        ):
+        if abs(error) > TURN_MIN_ZONE and sign(cmd) == sign(error) and abs(cmd) < TURN_MIN_SPEED:
             cmd = TURN_MIN_SPEED * sign(error)
 
         # pornire lina contra patinarii frana imediata
@@ -162,66 +158,20 @@ def turn(degrees, max_speed=None, timeout_ms=None):
 
 
 # stop=False si deceleration=False = miscari legate fara oprire
-def forward(
-    distance_cm, speed=FWD_MAX_SPEED, deceleration=True, stop=True, timeout_ms=None
-):
-    target = abs(distance_cm) * DEG_PER_CM
-    if target < 1:
-        return
-    direction = sign(distance_cm)
+def forward(distance_cm, speed=FWD_MAX_SPEED, deceleration=True, stop=True):
     max_speed = clamp(abs(speed), FWD_MIN_SPEED, FWD_MAX_SPEED)
+    decel = FWD_DECEL if deceleration else FWD_ACCEL
 
-    if timeout_ms is None:
-        timeout_ms = 1500 + 2000 * target / max_speed
+    robot.settings(
+        straight_speed=max_speed,                       # mm/s
+        straight_acceleration=(FWD_ACCEL, decel),       # mm/s^2
+    )
 
-    # fara reset la motoare doar pozitia de start
-    left_start = left_motor.angle()
-    right_start = right_motor.angle()
-    timer = StopWatch()
-    loop_timer = StopWatch()
-    prev_error = hub.imu.heading() - target_heading
-
-    while timer.time() < timeout_ms:
-        wait(LOOP_MS)
-        dt = get_dt(loop_timer)
-
-        traveled = abs(
-            (left_motor.angle() - left_start + right_motor.angle() - right_start) / 2
-        )
-        remaining = target - traveled
-        if remaining <= 0:
-            break
-
-        # accelereaza la inceput incetineste spre final (v^2 = v0^2 + 2*a*d)
-        current_speed = min(
-            max_speed, umath.sqrt(FWD_MIN_SPEED**2 + 2 * FWD_ACCEL * traveled)
-        )
-        if deceleration:
-            current_speed = min(
-                current_speed, umath.sqrt(FWD_MIN_SPEED**2 + 2 * FWD_DECEL * remaining)
-            )
-
-        # tine directia target_heading
-        error = hub.imu.heading() - target_heading
-        derivative = (error - prev_error) / dt
-        prev_error = error
-        correction = clamp(
-            FWD_KP * error + FWD_KD * derivative,
-            -FWD_MAX_CORRECTION,
-            FWD_MAX_CORRECTION,
-        )
-
-        # lasa loc pentru corectie altfel o roata da in limita si nu mai corecteaza
-        current_speed = (
-            min(current_speed, MAX_MOTOR_SPEED - abs(correction)) * direction
-        )
-
-        # left_motor.run(current_speed + correction)
-        # right_motor.run(current_speed - correction)
-
-    robot.use_gyro(False)
-    robot.straight(current_speed)
-    robot.use_gyro(True)
+    robot.straight(
+        distance_cm * 10,                               # milimetri
+        then=Stop.HOLD if stop else Stop.NONE,
+        wait=True,
+    )
 
     if stop:
         left_motor.hold()
@@ -230,9 +180,7 @@ def forward(
 
 
 # daca atasamentul se agata se opreste in loc sa blocheze tot runul
-def run_attachment(
-    motor, speed, angle, then=Stop.HOLD, wait_done=True, timeout_ms=3000
-):
+def run_attachment(motor, speed, angle, then=Stop.HOLD, wait_done=True, timeout_ms=3000):
     motor.run_angle(speed, angle, then=then, wait=False)
     if not wait_done:
         return
