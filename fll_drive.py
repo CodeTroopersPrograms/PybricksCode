@@ -153,7 +153,25 @@ def turn_to(heading, max_speed=None, timeout_ms=None):
 
 # viraj relativ la unde se uita robotul ACUM (pozitiv = dreapta)
 def turn(degrees, max_speed=None, timeout_ms=None):
-    turn_to(hub.imu.heading() + degrees, max_speed, timeout_ms)
+    if max_speed is None:
+        max_speed = TURN_MAX_SPEED
+
+    robot.settings(
+        turn_rate=max_speed,
+        turn_acceleration=max_speed,
+    )
+
+    if timeout_ms is None:
+        # Blocking turn, relative to the current heading
+        robot.turn(degrees, then=Stop.HOLD, wait=True)
+    else:
+        # Non-blocking turn so we can enforce a timeout
+        robot.turn(degrees, then=Stop.HOLD, wait=False)
+        timer = StopWatch()
+        while not robot.done() and timer.time() < timeout_ms:
+            wait(10)
+        if not robot.done():
+            robot.stop()  # timed out, so stop the
 
 
 # stop=False si deceleration=False = miscari legate fara oprire

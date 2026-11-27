@@ -17,21 +17,21 @@ def main():
             print("blue")
             print(color_sensor.color())
             hub.speaker.beep(frequency=400, duration=500)
-            start_run()
-            forward(-55)
-            turn(-47)
-            forward(-20)
-            turn(46)
-            forward(-8)
+            forward(-52)
+            turn(45)
+            forward(-26)
+            turn(-45)
+            forward(-3)
             run_attachment(r_arm,  100, 100, wait_done=True)
-            forward(2)
+            forward(4)
             run_attachment(r_arm, 115, -60, wait_done=True)
-            forward(2)
-            run_attachment(r_arm, 100, 10, wait_done=True)
-            turn(-62)
-            forward(-23)
-            turn(113)
-            forward(-10, speed=-50) 
+            forward(4)
+            run_attachment(r_arm, 10000, 180, wait_done=True)
+            turn(62)
+            forward(-21)
+            turn(-113)
+            forward(-20, speed=-50) 
+            
             
 
             
@@ -50,18 +50,18 @@ def main():
             start_run() #calibreaza roti + gyro
             hub.speaker.beep(frequency=400, duration=500)
             forward(-7)
-            turn(45)
-            forward(-34)
+            turn(-51)
+            forward(-33)
             run_attachment(l_arm, 35, -65, then=Stop.HOLD)
-            forward(30)
-            turn(45)
+            forward(28)
+            turn(-47)
             #forward(20)
-            run_attachment(l_arm, 80, -100, then=Stop.HOLD)
+            run_attachment(l_arm, 50, -100, then=Stop.HOLD)
             wait(5)
             forward(-50)
-            turn(-55)
-            turn(55)
-            forward(55)
+            turn(76)
+            turn(-76)
+            forward(60)
 
 
 
@@ -103,3 +103,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+# merge
